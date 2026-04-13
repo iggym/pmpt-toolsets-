@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Prompt Architect | High-Agency AI Tools</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #0a0a0a; color: #f4f4f4; }
+        .glass { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); }
+        .neon-border:focus { border-color: #00ffcc; box-shadow: 0 0 15px rgba(0, 255, 204, 0.3); }
+        .gradient-text { background: linear-gradient(90deg, #00ffcc, #0077ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        @keyframes float { 0% { transform: translateY(0px); } 50% { transform: translateY(-10px); } 100% { transform: translateY(0px); } }
+        .animate-float { animation: float 4s ease-in-out infinite; }
+    </style>
+</head>
+<body class="min-h-screen p-4 md:p-12">
+
+    <div class="max-w-4xl mx-auto">
+        <header class="mb-12 text-center animate-float">
+            <h1 class="text-5xl font-800 mb-2 gradient-text">Prompt Architect</h1>
+            <p class="text-gray-400 font-light tracking-widest uppercase text-sm">High-Leverage Cognitive Frameworks</p>
+        </header>
+
+        <main class="grid gap-8">
+            
+            <section class="glass p-6 rounded-2xl">
+                <label class="block text-sm font-semibold mb-3 text-blue-400 uppercase tracking-tighter">1. Define Your Problem Space</label>
+                <input type="text" id="topicInput" placeholder="e.g., Designing a sustainable colony on Mars..." 
+                       class="w-full bg-black/50 border border-white/10 rounded-xl p-4 text-xl neon-border transition-all outline-none">
+            </section>
+
+            <section>
+                <label class="block text-sm font-semibold mb-4 text-purple-400 uppercase tracking-tighter">2. Choose Your Cognitive Framework</label>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <button onclick="inject('contrarian')" class="glass p-4 rounded-xl text-left hover:bg-white/5 transition-all group">
+                        <h3 class="font-bold text-white group-hover:text-cyan-400">The Contrarian</h3>
+                        <p class="text-xs text-gray-500 mt-1">Negates standard assumptions to find radical solutions.</p>
+                    </button>
+                    <button onclick="inject('twisted')" class="glass p-4 rounded-xl text-left hover:bg-white/5 transition-all group">
+                        <h3 class="font-bold text-white group-hover:text-purple-400">Twisted Logic Loop</h3>
+                        <p class="text-xs text-gray-500 mt-1">Forces a logic pivot at step 3 to bypass AI clichés.</p>
+                    </button>
+                    <button onclick="inject('multi')" class="glass p-4 rounded-xl text-left hover:bg-white/5 transition-all group">
+                        <h3 class="font-bold text-white group-hover:text-blue-400">Multi-Perspective</h3>
+                        <p class="text-xs text-gray-500 mt-1">Dialogue between a specialist and a radical visionary.</p>
+                    </button>
+                    <button onclick="inject('agency')" class="glass p-4 rounded-xl text-left hover:bg-white/5 transition-all group">
+                        <h3 class="font-bold text-white group-hover:text-green-400">Max Agency</h3>
+                        <p class="text-xs text-gray-500 mt-1">Eliminates hedging and focuses on the 80/20 leverage.</p>
+                    </button>
+                </div>
+            </section>
+
+            <section class="glass p-6 rounded-2xl relative">
+                <label class="block text-sm font-semibold mb-3 text-emerald-400 uppercase tracking-tighter">3. Engineered Prompt</label>
+                <textarea id="resultArea" readonly 
+                          class="w-full bg-black/30 h-64 font-mono text-sm p-4 rounded-xl border border-white/5 outline-none resize-none text-gray-300"></textarea>
+                
+                <button onclick="copyPrompt()" class="mt-4 w-full bg-white text-black font-bold py-3 rounded-xl hover:bg-cyan-400 transition-colors uppercase tracking-widest text-sm">
+                    Copy to Clipboard
+                </button>
+            </section>
+        </main>
+
+        <footer class="mt-12 text-center text-gray-600 text-xs font-mono">
+            DEPLOYED VIA THE PROMPT ARCHITECT FRAMEWORK v1.0
+        </footer>
+    </div>
+
+    <script>
+        const frameworks = {
+            contrarian: `# MISSION\nAct as a Radical Contrarian. Solve for: {TOPIC}.\n\n# LOGIC\n1. List 3 common assumptions.\n2. Invert them completely.\n3. Build a high-leverage strategy based only on the inversions.\n\n# CONSTRAINT\nAvoid all safe middle-grounds. Be provocatively efficient.`,
+            twisted: `# MISSION\nAct as a Systems Designer. Solve for: {TOPIC}.\n\n# TWISTED CHAIN OF THOUGHT\nStep 1: Propose a standard solution.\nStep 2: Identify why a standard solution will fail in a high-chaos environment.\nStep 3: Pivot. Use that failure point as the foundation for a new, robust architecture.\n\n# OUTPUT\nDecisive, no hedging.`,
+            multi: `# MISSION\nPerform a Socratic dialogue regarding: {TOPIC}.\n\n# PERSPECTIVES\n1. The Efficiency Expert (Focus on 80/20 leverage).\n2. The Radical Creative (Focus on divergent ambiguity).\n\n# SYNTHESIS\nProvide a final recommendation that satisfies both extreme viewpoints.`,
+            agency: `# MISSION\nYou have 100% agency. Solve for: {TOPIC}.\n\n# CONSTRAINTS\n- Zero hedging.\n- Zero "It's important to notes".\n- Focus exclusively on high-leverage actions.\n- Use brutalist, direct language.`
+        };
+
+        function inject(type) {
+            const topic = document.getElementById('topicInput').value || "[INSERT TOPIC]";
+            let prompt = frameworks[type].replace("{TOPIC}", topic);
+            document.getElementById('resultArea').value = prompt;
+        }
+
+        function copyPrompt() {
+            const copyText = document.getElementById("resultArea");
+            copyText.select();
+            document.execCommand("copy");
+            alert("Prompt copied to clipboard!");
+        }
+    </script>
+</body>
+</html>
