@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Prompt Generator</title>
+<style>
+body {
+  font-family: Arial, sans-serif;
+  background: linear-gradient(135deg, #0f172a, #1e293b);
+  color: white;
+  margin: 0;
+  padding: 0;
+}
+header {
+  text-align: center;
+  padding: 20px;
+  font-size: 28px;
+  font-weight: bold;
+}
+.container {
+  max-width: 900px;
+  margin: auto;
+  padding: 20px;
+}
+.card {
+  background: rgba(255,255,255,0.05);
+  padding: 20px;
+  margin-bottom: 20px;
+  border-radius: 12px;
+  backdrop-filter: blur(10px);
+  transition: transform 0.2s;
+}
+.card:hover {
+  transform: scale(1.02);
+}
+textarea, input {
+  width: 100%;
+  padding: 10px;
+  margin-top: 10px;
+  border-radius: 8px;
+  border: none;
+}
+button {
+  margin-top: 15px;
+  padding: 12px 20px;
+  border: none;
+  border-radius: 8px;
+  background: #22c55e;
+  color: black;
+  font-weight: bold;
+  cursor: pointer;
+}
+button:hover {
+  background: #16a34a;
+}
+.output {
+  white-space: pre-wrap;
+  background: #020617;
+  padding: 15px;
+  border-radius: 10px;
+  margin-top: 20px;
+}
+.fade-in {
+  animation: fadeIn 0.6s ease-in-out;
+}
+@keyframes fadeIn {
+  from {opacity: 0; transform: translateY(10px);} 
+  to {opacity: 1; transform: translateY(0);} 
+}
+</style>
+</head>
+<body>
+<header>⚡ AI Prompt Generator</header>
+<div class="container">
+
+<div class="card">
+<h3>Context</h3>
+<textarea id="context" placeholder="Describe the situation..."></textarea>
+</div>
+
+<div class="card">
+<h3>Goal</h3>
+<input id="goal" placeholder="What do you want to achieve?" />
+</div>
+
+<div class="card">
+<h3>Constraints</h3>
+<input id="constraints" placeholder="e.g. no budget, 24 hours" />
+</div>
+
+<div class="card">
+<h3>Mode</h3>
+<select id="mode">
+<option value="master">Master</option>
+<option value="quick">Quick</option>
+<option value="creative">Creative</option>
+</select>
+</div>
+
+<button onclick="generatePrompt()">Generate Prompt</button>
+
+<div id="output" class="output fade-in"></div>
+
+</div>
+
+<script>
+function generatePrompt() {
+  const context = document.getElementById('context').value;
+  const goal = document.getElementById('goal').value;
+  const constraints = document.getElementById('constraints').value;
+  const mode = document.getElementById('mode').value;
+
+  let prompt = '';
+
+  if(mode === 'master') {
+    prompt = `Act as a high-agency strategist.\n\nContext:\n${context}\n\nGoal:\n${goal}\n\nConstraints:\n${constraints}\n\nAnalyze from multiple perspectives (expert, skeptic, contrarian, practitioner, outsider).\n\nGenerate 10 radically different approaches.\n\nApply twisted reasoning:\n- Assume the opposite\n- Work backward from failure\n\nSynthesize top 3 strategies with tradeoffs.\n\nIdentify hidden assumptions and missed opportunities.\n\nProvide actionable framework.\n\nCritique and improve your answer.`;
+  }
+
+  if(mode === 'quick') {
+    prompt = `Act as a strategist.\n\nProblem:\n${context}\n\nGoal:\n${goal}\n\nConstraints:\n${constraints}\n\nGenerate 5 unconventional solutions.\n\nInvert the problem and reason from failure.\n\nProvide best simple strategy.\n\nCritique and improve.`;
+  }
+
+  if(mode === 'creative') {
+    prompt = `You are a founder, philosopher, and scientist.\n\nProblem:\n${context}\n\nGoal:\n${goal}\n\nConstraints:\n${constraints}\n\nRules:\n- Be contrarian and unconventional\n- Assume obvious solution is wrong\n\nTwist:\n- Start from failure\n- Reframe as story or alternate reality\n\nExtract a practical system.\n\nCritique and refine.`;
+  }
+
+  const output = document.getElementById('output');
+  output.classList.remove('fade-in');
+  void output.offsetWidth;
+  output.classList.add('fade-in');
+  output.innerText = prompt;
+}
+</script>
+
+</body>
+</html>
