@@ -1,0 +1,559 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Prompt Engineering Studio</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#ffffff;--bg2:#f7f7f5;--bg3:#f0f0ec;
+  --text:#1a1a18;--text2:#6b6b65;--text3:#a0a09a;
+  --border:rgba(0,0,0,0.12);--border2:rgba(0,0,0,0.22);
+  --purple-bg:#EEEDFE;--purple-text:#3C3489;
+  --teal-bg:#E1F5EE;--teal-text:#0F6E56;
+  --amber-bg:#FAEEDA;--amber-text:#854F0B;
+  --coral-bg:#FAECE7;--coral-text:#993C1D;
+  --blue-bg:#E6F1FB;--blue-text:#185FA5;
+  --pink-bg:#FBEAF0;--pink-text:#993556;
+  --gray-bg:#F1EFE8;--gray-text:#444441;
+  --success-bg:#E1F5EE;--success-text:#0F6E56;--success-border:#5DCAA5;
+  --radius:8px;--radius-lg:12px;
+}
+@media(prefers-color-scheme:dark){
+  :root{
+    --bg:#1e1e1c;--bg2:#282826;--bg3:#323230;
+    --text:#e8e8e2;--text2:#9c9a92;--text3:#6b6966;
+    --border:rgba(255,255,255,0.1);--border2:rgba(255,255,255,0.2);
+    --purple-bg:#26215C;--purple-text:#CECBF6;
+    --teal-bg:#04342C;--teal-text:#9FE1CB;
+    --amber-bg:#412402;--amber-text:#FAC775;
+    --coral-bg:#4A1B0C;--coral-text:#F5C4B3;
+    --blue-bg:#042C53;--blue-text:#B5D4F4;
+    --pink-bg:#4B1528;--pink-text:#F4C0D1;
+    --gray-bg:#2C2C2A;--gray-text:#D3D1C7;
+    --success-bg:#04342C;--success-text:#9FE1CB;--success-border:#1D9E75;
+  }
+}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg3);color:var(--text);min-height:100vh;font-size:15px;line-height:1.6}
+h1{font-size:22px;font-weight:500}
+h2{font-size:18px;font-weight:500}
+h3{font-size:16px;font-weight:500}
+
+/* Layout */
+.shell{display:grid;grid-template-columns:240px 1fr;min-height:100vh}
+.sidebar{background:var(--bg2);border-right:0.5px solid var(--border);padding:0;display:flex;flex-direction:column}
+.sidebar-logo{padding:20px 20px 16px;border-bottom:0.5px solid var(--border)}
+.sidebar-logo h1{font-size:17px;font-weight:500;margin-bottom:2px}
+.sidebar-logo p{font-size:12px;color:var(--text2)}
+.sidebar-section{padding:12px 0 4px}
+.sidebar-label{font-size:10px;font-weight:500;color:var(--text3);letter-spacing:.08em;text-transform:uppercase;padding:0 16px 6px}
+.nav-item{padding:8px 16px;font-size:13px;color:var(--text2);cursor:pointer;border-left:2px solid transparent;transition:all .12s;display:block;text-decoration:none}
+.nav-item:hover{background:var(--bg3);color:var(--text)}
+.nav-item.active{background:var(--bg);color:var(--text);border-left:2px solid #534AB7;font-weight:500}
+.divider{height:0.5px;background:var(--border);margin:8px 0}
+.main{display:flex;flex-direction:column;overflow:hidden}
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:16px 24px;border-bottom:0.5px solid var(--border);background:var(--bg);flex-shrink:0;gap:12px}
+.topbar-info h2{font-size:16px;font-weight:500;margin-bottom:2px}
+.topbar-info p{font-size:12px;color:var(--text2)}
+.topbar-actions{display:flex;gap:8px;flex-shrink:0}
+.content{padding:24px;overflow-y:auto;flex:1;background:var(--bg3)}
+.page{display:none;flex-direction:column;gap:18px}
+.page.active{display:flex}
+
+/* Cards */
+.card{background:var(--bg);border:0.5px solid var(--border);border-radius:var(--radius-lg);padding:18px 20px}
+.card-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;gap:10px}
+.card-title{font-size:14px;font-weight:500}
+
+/* Badges */
+.badge{display:inline-flex;align-items:center;font-size:11px;font-weight:500;padding:2px 9px;border-radius:20px;flex-shrink:0}
+.bp{background:var(--purple-bg);color:var(--purple-text)}
+.bt{background:var(--teal-bg);color:var(--teal-text)}
+.ba{background:var(--amber-bg);color:var(--amber-text)}
+.bc{background:var(--coral-bg);color:var(--coral-text)}
+.bbl{background:var(--blue-bg);color:var(--blue-text)}
+.bpk{background:var(--pink-bg);color:var(--pink-text)}
+.bgr{background:var(--gray-bg);color:var(--gray-text)}
+
+/* Buttons */
+.btn{background:none;border:0.5px solid var(--border2);border-radius:var(--radius);padding:7px 14px;font-size:13px;font-weight:500;color:var(--text);cursor:pointer;transition:all .12s;font-family:inherit}
+.btn:hover{background:var(--bg2)}
+.btn.primary{background:var(--text);color:var(--bg);border-color:var(--text)}
+.btn.primary:hover{opacity:0.85}
+.copy-btn{background:none;border:0.5px solid var(--border2);border-radius:6px;padding:5px 11px;font-size:11px;font-weight:500;color:var(--text2);cursor:pointer;transition:all .12s;font-family:inherit}
+.copy-btn:hover{background:var(--bg2);color:var(--text)}
+.copy-btn.copied{border-color:var(--success-border);color:var(--success-text);background:var(--success-bg)}
+
+/* Form fields */
+.field-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+.field-grid.full{grid-template-columns:1fr}
+.field-label{font-size:12px;color:var(--text2);font-weight:500;margin-bottom:5px;display:block}
+input[type=text],select,textarea{width:100%;padding:8px 11px;border:0.5px solid var(--border2);border-radius:var(--radius);background:var(--bg);color:var(--text);font-size:13px;font-family:inherit;transition:border-color .12s;outline:none}
+input[type=text]:focus,select:focus,textarea:focus{border-color:#534AB7;box-shadow:0 0 0 3px rgba(83,74,183,0.1)}
+textarea{resize:vertical;min-height:64px;line-height:1.5}
+select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23888' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;padding-right:28px}
+
+/* Chips */
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
+.chip{padding:5px 12px;font-size:12px;border:0.5px solid var(--border2);border-radius:20px;cursor:pointer;color:var(--text2);transition:all .12s;background:var(--bg);user-select:none}
+.chip:hover,.chip.on{background:var(--bg2);color:var(--text);border-color:var(--text2)}
+
+/* Output */
+.output-box{background:var(--bg2);border:0.5px solid var(--border);border-radius:var(--radius);padding:14px 16px;font-size:12.5px;line-height:1.8;color:var(--text2);font-family:'SF Mono','Fira Code',monospace;white-space:pre-wrap;word-break:break-word;min-height:130px}
+.template-text{background:var(--bg2);border:0.5px solid var(--border);border-radius:var(--radius);padding:14px 16px;font-size:12.5px;line-height:1.8;color:var(--text2);font-family:'SF Mono','Fira Code',monospace;white-space:pre-wrap;word-break:break-word}
+
+/* Snippets */
+.snip-btn{display:block;width:100%;text-align:left;background:none;border:0.5px solid var(--border);border-radius:var(--radius);padding:11px 14px;margin-bottom:8px;cursor:pointer;transition:all .12s;font-family:inherit}
+.snip-btn:hover{background:var(--bg2);border-color:var(--border2)}
+.snip-title{font-size:13px;font-weight:500;color:var(--text);margin-bottom:3px}
+.snip-preview{font-size:11.5px;color:var(--text2);font-family:'SF Mono','Fira Code',monospace;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+/* Tag grid */
+.tag-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.tag-card{border:0.5px solid var(--border);border-radius:var(--radius);padding:12px 14px;cursor:pointer;transition:all .12s;background:var(--bg)}
+.tag-card:hover{border-color:var(--border2);background:var(--bg2)}
+.tag-card h4{font-size:13px;font-weight:500;margin:6px 0 4px}
+.tag-card p{font-size:12px;color:var(--text2);line-height:1.5}
+
+/* Checks */
+.check-row{display:flex;align-items:flex-start;gap:12px;padding:12px 0;border-bottom:0.5px solid var(--border)}
+.check-row:last-child{border-bottom:none}
+.check-num{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;flex-shrink:0;margin-top:1px}
+.cn-p{background:var(--purple-bg);color:var(--purple-text)}
+.cn-t{background:var(--teal-bg);color:var(--teal-text)}
+.check-q{font-size:14px;font-weight:500;margin-bottom:4px}
+.check-sub{font-size:13px;color:var(--text2);line-height:1.5}
+
+/* Lens rows */
+.lens-row{margin-bottom:14px}
+.lens-head{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+
+/* Toast */
+#toast{position:fixed;bottom:24px;right:24px;background:var(--text);color:var(--bg);padding:10px 16px;border-radius:var(--radius);font-size:13px;font-weight:500;opacity:0;transform:translateY(8px);transition:all .2s;pointer-events:none;z-index:999}
+#toast.show{opacity:1;transform:translateY(0)}
+
+@media(max-width:700px){
+  .shell{grid-template-columns:1fr}
+  .sidebar{display:none}
+  .field-grid{grid-template-columns:1fr}
+  .tag-grid{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<div id="toast">Copied to clipboard</div>
+
+<div class="shell">
+  <div class="sidebar">
+    <div class="sidebar-logo">
+      <h1>Prompt Studio</h1>
+      <p>Build high-quality AI prompts</p>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-label">Compose</div>
+      <div class="nav-item active" onclick="nav('builder',this)">Builder</div>
+      <div class="nav-item" onclick="nav('templates',this)">Templates</div>
+      <div class="nav-item" onclick="nav('snippets',this)">Snippet library</div>
+    </div>
+    <div class="divider"></div>
+    <div class="sidebar-section">
+      <div class="sidebar-label">Techniques</div>
+      <div class="nav-item" onclick="nav('cot',this)">Twisted CoT</div>
+      <div class="nav-item" onclick="nav('lenses',this)">Perspective lenses</div>
+    </div>
+    <div class="divider"></div>
+    <div class="sidebar-section">
+      <div class="sidebar-label">Quality</div>
+      <div class="nav-item" onclick="nav('verify',this)">Verification checklist</div>
+    </div>
+  </div>
+
+  <div class="main">
+    <div class="topbar">
+      <div class="topbar-info">
+        <h2 id="page-title">Prompt builder</h2>
+        <p id="page-sub">Compose a custom high-quality prompt step by step</p>
+      </div>
+      <div class="topbar-actions">
+        <button class="btn" onclick="clearBuilder()">Clear</button>
+        <button class="btn primary" onclick="copyMain()">Copy prompt</button>
+      </div>
+    </div>
+
+    <div class="content">
+
+      <!-- BUILDER -->
+      <div class="page active" id="p-builder">
+        <div class="card">
+          <div class="card-head"><div class="card-title">Role & context</div><span class="badge bp">Step 1</span></div>
+          <div class="field-grid">
+            <div><label class="field-label">Expert role</label><input type="text" id="b-role" placeholder="e.g. product strategist" oninput="buildPrompt()"></div>
+            <div><label class="field-label">Domain / field</label><input type="text" id="b-domain" placeholder="e.g. B2B SaaS" oninput="buildPrompt()"></div>
+          </div>
+          <div class="field-grid full">
+            <div><label class="field-label">Context / situation</label><textarea id="b-context" placeholder="What's the background? What constraints exist?" oninput="buildPrompt()"></textarea></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-head"><div class="card-title">Task & reasoning mode</div><span class="badge bt">Step 2</span></div>
+          <div class="field-grid full"><div><label class="field-label">Core task</label><textarea id="b-task" placeholder="What do you want the AI to do or produce?" oninput="buildPrompt()"></textarea></div></div>
+          <label class="field-label">Reasoning modifier</label>
+          <div class="chips" id="cot-chips">
+            <div class="chip on" onclick="pickCot(this)" data-val="Think step by step.">Standard CoT</div>
+            <div class="chip" onclick="pickCot(this)" data-val="Start by assuming the opposite conclusion is correct. Work backwards to find what would have to be true. Then correct course.">Reversed CoT</div>
+            <div class="chip" onclick="pickCot(this)" data-val="After each reasoning step, argue why that step might be wrong before proceeding.">Devil's advocate</div>
+            <div class="chip" onclick="pickCot(this)" data-val="At step 3, fork into two competing logic chains. Run both to their conclusions and compare.">Branching</div>
+            <div class="chip" onclick="pickCot(this)" data-val="After solving, identify the single assumption in your reasoning most likely to be wrong. State it explicitly.">Meta CoT</div>
+            <div class="chip" onclick="pickCot(this)" data-val="Before each step, rate your confidence 1–5. If below 3, explore an alternative path before continuing.">Confidence-gated</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-head"><div class="card-title">Creative modifiers</div><span class="badge ba">Step 3</span></div>
+          <div class="field-grid">
+            <div>
+              <label class="field-label">Divergence</label>
+              <select id="b-div" onchange="buildPrompt()">
+                <option value="">None</option>
+                <option value="Generate 3 completely different framings — each must contradict the previous framing's core assumption.">3 divergent framings</option>
+                <option value="Generate 5 mutually exclusive approaches. Each must start from a different first principle.">5 mutually exclusive approaches</option>
+                <option value="Give one mainstream answer and one radically unconventional answer.">Mainstream vs. unconventional</option>
+              </select>
+            </div>
+            <div>
+              <label class="field-label">Creative constraint</label>
+              <select id="b-con" onchange="buildPrompt()">
+                <option value="">None</option>
+                <option value="Answer using only analogies — no direct statements.">Analogies only</option>
+                <option value="Respond in under 80 words. Every word must earn its place.">Under 80 words</option>
+                <option value="Use only second-person perspective throughout.">Second-person only</option>
+                <option value="Phrase every insight as a question, not a statement.">Questions only</option>
+                <option value="No adjectives allowed. Nouns and verbs only.">No adjectives</option>
+              </select>
+            </div>
+          </div>
+          <div class="field-grid">
+            <div>
+              <label class="field-label">Perspective lens</label>
+              <select id="b-lens" onchange="buildPrompt()">
+                <option value="">None</option>
+                <option value="Answer three times: as a pessimist, an optimist, and a contrarian.">Pessimist / Optimist / Contrarian</option>
+                <option value="Answer from the perspective of a first-time user, an expert, and a skeptic.">Novice / Expert / Skeptic</option>
+                <option value="Answer from the perspective of someone who benefits, someone who is harmed, and a neutral observer.">Beneficiary / Harmed / Neutral</option>
+                <option value="Examine across three time horizons: historical, present, and future second-order effects.">Past / Present / Future</option>
+              </select>
+            </div>
+            <div>
+              <label class="field-label">Ambiguity level</label>
+              <select id="b-amb" onchange="buildPrompt()">
+                <option value="">Resolved (clear answer)</option>
+                <option value="Do not resolve the tension — hold it open. Present the paradox, not a conclusion.">Hold the tension open</option>
+                <option value="End with an open question the reader must answer themselves — do not answer it.">End with open question</option>
+                <option value="Leave the most important variable undefined. Let the reader fill it in.">Leave key variable undefined</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-head"><div class="card-title">Output format</div><span class="badge bc">Step 4</span></div>
+          <div class="field-grid">
+            <div>
+              <label class="field-label">Format</label>
+              <select id="b-fmt" onchange="buildPrompt()">
+                <option value="Respond in clear prose.">Prose</option>
+                <option value="Respond as a numbered list.">Numbered list</option>
+                <option value="Respond in a structured table.">Table</option>
+                <option value="Respond as a dialogue between two opposing voices.">Dialogue</option>
+                <option value="Respond as a short narrative story.">Narrative</option>
+                <option value="Respond as annotated code with comments explaining the reasoning.">Annotated code</option>
+              </select>
+            </div>
+            <div>
+              <label class="field-label">Length target</label>
+              <select id="b-len" onchange="buildPrompt()">
+                <option value="">No constraint</option>
+                <option value="Be concise — one paragraph maximum.">Concise (1 paragraph)</option>
+                <option value="Medium length — 3 to 5 paragraphs.">Medium (3–5 paragraphs)</option>
+                <option value="Comprehensive — explore fully but avoid padding.">Comprehensive</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-head">
+            <div class="card-title">Generated prompt</div>
+            <button class="copy-btn" id="main-copy-btn" onclick="copyMain()">Copy</button>
+          </div>
+          <div class="output-box" id="output">Fill in the fields above to generate your prompt...</div>
+        </div>
+      </div>
+
+      <!-- TEMPLATES -->
+      <div class="page" id="p-templates">
+        <div class="card">
+          <div class="card-head"><div class="card-title">Master prompt template</div><button class="copy-btn" onclick="copyEl('tpl-master',this)">Copy</button></div>
+          <div class="template-text" id="tpl-master">ROLE: You are a [expert type] specializing in [domain].
+
+CONTEXT: [Describe the situation, background, and key constraints in 2–3 sentences.]
+
+TASK: [State what you want clearly. One sentence.]
+
+REASONING MODE: [Pick one:
+  - Think step by step.
+  - Start from the opposite conclusion and work backwards.
+  - After each step, argue why it might be wrong before proceeding.]
+
+DIVERGENCE: Generate [N] completely different framings of the answer. Each must contradict the previous framing's core assumption.
+
+CONSTRAINT: [Apply one creative rule, e.g. "Use only analogies" / "Under 80 words" / "No adjectives."]
+
+PERSPECTIVE: Answer three times — as a [role A], a [role B], and a [role C].
+
+AMBIGUITY: [Choose: Resolve cleanly / Hold the tension open / End with an open question for the reader.]
+
+OUTPUT FORMAT: [Prose / List / Table / Dialogue / Narrative / Code]</div>
+        </div>
+        <div class="card">
+          <div class="card-head"><div class="card-title">High-leverage research template</div><button class="copy-btn" onclick="copyEl('tpl-research',this)">Copy</button></div>
+          <div class="template-text" id="tpl-research">You are a senior research analyst with expertise in [field].
+
+I need to understand [topic] for [purpose].
+
+First, assume the mainstream consensus on this topic is WRONG. What evidence supports that? (2–3 points)
+
+Then steelman the mainstream view. What's the strongest case for it?
+
+Finally, synthesize a third position that neither side has articulated.
+
+Constraint: No hedging language. Every sentence must take a clear position.
+
+Format: Three labeled sections — Contrarian Case / Mainstream Case / Synthesis.</div>
+        </div>
+        <div class="card">
+          <div class="card-head"><div class="card-title">Multi-perspective decision template</div><button class="copy-btn" onclick="copyEl('tpl-decision',this)">Copy</button></div>
+          <div class="template-text" id="tpl-decision">Context: [Describe the decision you face and what's at stake.]
+
+Analyze this decision from three distinct lenses:
+
+1. PESSIMIST: What's the most plausible way this goes badly? Be specific.
+2. OPTIMIST: What's the most plausible path to this working well?
+3. CONTRARIAN: What would someone argue who thinks both of the above are asking the wrong question entirely?
+
+After all three, identify the single biggest hidden assumption shared by all three perspectives.
+
+Do not resolve which view is correct. Hold the tension.</div>
+        </div>
+        <div class="card">
+          <div class="card-head"><div class="card-title">Creative divergence template</div><button class="copy-btn" onclick="copyEl('tpl-diverge',this)">Copy</button></div>
+          <div class="template-text" id="tpl-diverge">Task: [State the creative or analytical challenge.]
+
+Generate 5 completely different approaches to this. Rules:
+- Each approach must start from a different first principle
+- Approach 2 must directly contradict Approach 1's core assumption
+- Approach 5 must be the one you think I would least expect
+
+Label each: [Approach name] + [Core assumption it starts from] + [The approach itself]
+
+Constraint: Use only analogies to explain each approach — no direct descriptions.</div>
+        </div>
+        <div class="card">
+          <div class="card-head"><div class="card-title">Self-auditing meta-prompt</div><button class="copy-btn" onclick="copyEl('tpl-audit',this)">Copy</button></div>
+          <div class="template-text" id="tpl-audit">You just produced an output in response to a prompt. Now audit it:
+
+1. SPECIFICITY: What is the most ambiguous word or phrase in your output? Define it precisely.
+2. CONSTRAINT CHECK: What constraint in the original prompt, if removed, would have changed your output most?
+3. DIVERGENCE: If you had to rewrite this output from a completely opposite starting assumption, what would change?
+4. SURPRISE: Rate your own output 1–5 on unexpectedness. Justify the rating.
+5. HIDDEN ASSUMPTION: Identify the single largest unexamined assumption embedded in your reasoning. State it explicitly.
+6. TENSION: What did you resolve that should have been left open?
+
+Do not defend your original output. Criticize it as if you were a skeptical editor.</div>
+        </div>
+      </div>
+
+      <!-- SNIPPETS -->
+      <div class="page" id="p-snippets">
+        <div class="card">
+          <div class="card-head"><div class="card-title">Snippet library</div><span class="badge bgr">Click to copy</span></div>
+          <div id="snippets-list"></div>
+        </div>
+      </div>
+
+      <!-- COT -->
+      <div class="page" id="p-cot">
+        <div class="card">
+          <div class="card-head"><div class="card-title">Twisted chain-of-thought patterns</div><span class="badge bgr">Click to copy</span></div>
+          <div class="tag-grid" id="cot-grid"></div>
+        </div>
+      </div>
+
+      <!-- LENSES -->
+      <div class="page" id="p-lenses">
+        <div class="card">
+          <div class="card-head"><div class="card-title">Perspective lenses</div></div>
+          <div id="lenses-list"></div>
+        </div>
+      </div>
+
+      <!-- VERIFY -->
+      <div class="page" id="p-verify">
+        <div class="card">
+          <div class="card-head"><div class="card-title">Verification checklist</div></div>
+          <div class="check-row"><div class="check-num cn-p">1</div><div><div class="check-q">Specificity test</div><div class="check-sub">Could 10 different people interpret this prompt identically? If not — tighten role, context, or output format until they could.</div></div></div>
+          <div class="check-row"><div class="check-num cn-p">2</div><div><div class="check-q">Constraint pressure test</div><div class="check-sub">Remove one constraint. Does the output become generic? If yes — that constraint is load-bearing. Keep it. Consider doubling it.</div></div></div>
+          <div class="check-row"><div class="check-num cn-p">3</div><div><div class="check-q">Divergence audit</div><div class="check-sub">Run the prompt 3 times. Are outputs substantially similar? If yes — add "each approach must contradict the last" to force genuine divergence.</div></div></div>
+          <div class="check-row"><div class="check-num cn-t">4</div><div><div class="check-q">Surprise quotient</div><div class="check-sub">Rate each output 1–5 on unexpectedness. Below 3? The prompt is confirming your priors. Inject a contrarian forcing function or reversed CoT.</div></div></div>
+          <div class="check-row"><div class="check-num cn-t">5</div><div><div class="check-q">Ambiguity preservation check</div><div class="check-sub">Did the model resolve everything when you wanted open-endedness? Explicitly add: "Do not resolve — hold the tension."</div></div></div>
+          <div class="check-row"><div class="check-num cn-t">6</div><div><div class="check-q">CoT integrity scan</div><div class="check-sub">Find the step in the reasoning where a hidden assumption was made. Feed that assumption back as a new prompt challenge.</div></div></div>
+        </div>
+        <div class="card" style="margin-top:0">
+          <div class="card-head"><div class="card-title">Self-auditing meta-prompt</div><button class="copy-btn" onclick="copyEl('tpl-audit2',this)">Copy</button></div>
+          <div class="template-text" id="tpl-audit2">You just produced an output in response to a prompt. Now audit it:
+
+1. SPECIFICITY: What is the most ambiguous word or phrase in your output? Define it precisely.
+2. CONSTRAINT CHECK: What constraint, if removed, would have changed your output most?
+3. DIVERGENCE: If you rewrote this from a completely opposite starting assumption, what would change?
+4. SURPRISE: Rate your own output 1–5 on unexpectedness. Justify the rating.
+5. HIDDEN ASSUMPTION: Identify the single largest unexamined assumption in your reasoning.
+6. TENSION: What did you resolve that should have been left open?
+
+Do not defend your original output. Criticize it as a skeptical editor.</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+const pageData={
+  builder:['Prompt builder','Compose a custom high-quality prompt step by step'],
+  templates:['Ready-made templates','Copy and adapt complete prompt frameworks'],
+  snippets:['Snippet library','One-click copy for common prompt parts'],
+  cot:['Twisted CoT','Chain-of-thought modifiers — click any to copy'],
+  lenses:['Perspective lenses','Multi-role framing snippets — click to copy'],
+  verify:['Verification checklist','Audit and improve your prompts and outputs']
+};
+
+function nav(id,el){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.getElementById('p-'+id).classList.add('active');
+  if(el)el.classList.add('active');
+  document.getElementById('page-title').textContent=pageData[id][0];
+  document.getElementById('page-sub').textContent=pageData[id][1];
+  const acts=document.querySelector('.topbar-actions');
+  acts.style.display=(id==='builder')?'flex':'none';
+}
+
+let cotVal='Think step by step.';
+function pickCot(el){
+  document.querySelectorAll('#cot-chips .chip').forEach(c=>c.classList.remove('on'));
+  el.classList.add('on');cotVal=el.dataset.val;buildPrompt();
+}
+
+function buildPrompt(){
+  const role=document.getElementById('b-role').value.trim();
+  const domain=document.getElementById('b-domain').value.trim();
+  const ctx=document.getElementById('b-context').value.trim();
+  const task=document.getElementById('b-task').value.trim();
+  const div=document.getElementById('b-div').value;
+  const con=document.getElementById('b-con').value;
+  const lens=document.getElementById('b-lens').value;
+  const amb=document.getElementById('b-amb').value;
+  const fmt=document.getElementById('b-fmt').value;
+  const len=document.getElementById('b-len').value;
+  let parts=[];
+  if(role||domain)parts.push('ROLE: You are a '+(role||'[expert]')+(domain?' specializing in '+domain:'')+'.') ;
+  if(ctx)parts.push('CONTEXT: '+ctx);
+  if(task)parts.push('TASK: '+task);
+  parts.push('REASONING: '+cotVal);
+  if(div)parts.push('DIVERGENCE: '+div);
+  if(con)parts.push('CONSTRAINT: '+con);
+  if(lens)parts.push('PERSPECTIVE: '+lens);
+  if(amb)parts.push('AMBIGUITY: '+amb);
+  parts.push('FORMAT: '+fmt+(len?' '+len:''));
+  document.getElementById('output').textContent=parts.join('\n\n');
+}
+
+function clearBuilder(){
+  ['b-role','b-domain','b-context','b-task'].forEach(id=>document.getElementById(id).value='');
+  ['b-div','b-con','b-lens','b-amb','b-fmt','b-len'].forEach(id=>document.getElementById(id).selectedIndex=0);
+  document.querySelectorAll('#cot-chips .chip').forEach((c,i)=>{c.classList.toggle('on',i===0);});
+  cotVal='Think step by step.';
+  buildPrompt();
+}
+
+function copyMain(){
+  const t=document.getElementById('output').textContent;
+  copyText(t);
+  const btn=document.getElementById('main-copy-btn');
+  btn.textContent='Copied!';btn.classList.add('copied');
+  setTimeout(()=>{btn.textContent='Copy';btn.classList.remove('copied')},1800);
+}
+
+function copyEl(id,btn){
+  copyText(document.getElementById(id).textContent);
+  if(btn){btn.textContent='Copied!';btn.classList.add('copied');setTimeout(()=>{btn.textContent='Copy';btn.classList.remove('copied')},1800);}
+}
+
+function copyText(t){
+  navigator.clipboard.writeText(t).catch(()=>{
+    const ta=document.createElement('textarea');ta.value=t;document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);
+  });
+  const toast=document.getElementById('toast');
+  toast.classList.add('show');setTimeout(()=>toast.classList.remove('show'),1800);
+}
+
+const snippets=[
+  {title:'Force divergence',text:'Generate [N] completely different framings — each must contradict the previous framing\'s core assumption.'},
+  {title:'Steelman opposition',text:'First, make the strongest possible argument against the obvious answer. Then steelman it. Then synthesize a third position.'},
+  {title:'Three-role lens',text:'Answer three times: as a pessimist, an optimist, and a contrarian. Each in 2–3 sentences.'},
+  {title:'Hold the tension',text:'Do not resolve the contradiction. Present both sides and leave the tension open for the reader.'},
+  {title:'Constraint: analogies only',text:'Explain using only analogies. No direct statements or technical terms.'},
+  {title:'Constraint: no adjectives',text:'No adjectives allowed. Nouns and verbs only.'},
+  {title:'Constraint: under 80 words',text:'Respond in under 80 words. Every word must earn its place.'},
+  {title:'Hidden assumption hunter',text:'Identify the single largest unexamined assumption embedded in this reasoning and state it explicitly.'},
+  {title:'Failure-first framing',text:'Approach this from the perspective of someone who has failed at exactly this problem. What would they warn you about?'},
+  {title:'Open-ended ending',text:'End with an open question that the reader must answer themselves — do not answer it.'},
+  {title:'Confidence gate',text:'Before each reasoning step, rate your confidence 1–5. If below 3, explore an alternative path first.'},
+  {title:'Expert audit mode',text:'Criticize the following as a skeptical editor — do not defend it, find what\'s weakest.'},
+  {title:'No hedging',text:'No hedging language. Every sentence must take a clear position.'},
+  {title:'First principles only',text:'Ignore convention and established best practices. Reason from first principles only.'},
+  {title:'Steel-man the opposite',text:'Before answering, make the strongest possible case for the opposite position.'},
+];
+
+const cotPatterns=[
+  {badge:'bp',label:'Reversed CoT',title:'Start from the wrong answer',desc:'Assumes the conclusion is false, backtracks to premises, then corrects forward.',text:'Start by assuming the opposite conclusion is correct. Work backwards to find what would have to be true for that to be correct. Then correct course.'},
+  {badge:'bc',label:"Devil's advocate CoT",title:'Argue against each step',desc:'Inserts a counter-argument between every reasoning step.',text:'After each reasoning step, explicitly argue why that step might be wrong before proceeding to the next step.'},
+  {badge:'bt',label:'Branching CoT',title:'Fork the reasoning path',desc:'Splits into two logic chains at step 3 and runs both to completion.',text:'At step 3 of your reasoning, fork into two competing logic chains. Run both chains independently to their conclusions. Then compare and synthesize.'},
+  {badge:'ba',label:'Meta CoT',title:'Audit your own reasoning',desc:'Forces reflection on the weakest link in the reasoning chain.',text:'After completing your reasoning and reaching a conclusion, identify the single assumption in your chain of thought that is most likely to be wrong. State it explicitly.'},
+  {badge:'bbl',label:'Confidence-gated CoT',title:'Rate before each step',desc:'Gates progress on explicit confidence scores per step.',text:'Think step by step. But before each step, rate your confidence 1–5. If confidence is below 3, explore an alternative path before continuing.'},
+  {badge:'bpk',label:'Failure-first CoT',title:'Reason from past failure',desc:'Anchors the chain of thought in known failure modes.',text:'Solve this from the perspective of someone who has failed at this exact problem before. What would they warn you about? Use that as the foundation of your reasoning.'},
+];
+
+const lenses=[
+  {badge:'bc',label:'Pessimist / Optimist / Contrarian',text:'Answer three times:\n1. PESSIMIST: The most plausible way this goes badly (be specific).\n2. OPTIMIST: The most plausible path to this working well.\n3. CONTRARIAN: The argument that both of the above are asking the wrong question.'},
+  {badge:'bp',label:'Novice / Expert / Skeptic',text:'Answer from three perspectives:\n1. FIRST-TIME USER: What would confuse or excite someone new to this?\n2. EXPERT: What nuance does the mainstream view miss?\n3. SKEPTIC: What\'s the strongest reason to doubt the whole premise?'},
+  {badge:'bt',label:'Beneficiary / Harmed / Neutral',text:'Analyze from three stakeholder positions:\n1. SOMEONE WHO BENEFITS: Why do they support this?\n2. SOMEONE WHO IS HARMED: What are their legitimate grievances?\n3. NEUTRAL OBSERVER: What do both sides fail to see?'},
+  {badge:'ba',label:'Past / Present / Future',text:'Examine across three time horizons:\n1. HISTORICAL LENS: What precedent or pattern is being repeated?\n2. PRESENT LENS: What\'s the immediate practical reality?\n3. FUTURE LENS: What second-order consequence is being ignored?'},
+  {badge:'bbl',label:'Micro / Macro / Meta',text:'Analyze at three levels of abstraction:\n1. MICRO: The specific, concrete, local effect.\n2. MACRO: The systemic, large-scale implication.\n3. META: What does this situation reveal about the frame we\'re using to analyze it?'},
+  {badge:'bpk',label:'Emotional / Rational / Intuitive',text:'Respond from three cognitive modes:\n1. EMOTIONAL: What does this feel like, and why does that matter?\n2. RATIONAL: What does the evidence say?\n3. INTUITIVE: What seems true before the analysis — and does the analysis confirm or challenge it?'},
+];
+
+document.getElementById('snippets-list').innerHTML=snippets.map(s=>`<button class="snip-btn" onclick="copyText(${JSON.stringify(s.text)})"><div class="snip-title">${s.title}</div><div class="snip-preview">${s.text}</div></button>`).join('');
+
+document.getElementById('cot-grid').innerHTML=cotPatterns.map(c=>`<div class="tag-card" onclick="copyText(${JSON.stringify(c.text)})"><span class="badge ${c.badge}">${c.label}</span><h4>${c.title}</h4><p>${c.desc}</p></div>`).join('');
+
+document.getElementById('lenses-list').innerHTML=lenses.map(l=>`<div class="lens-row"><div class="lens-head"><span class="badge ${l.badge}">${l.label}</span><button class="copy-btn" onclick="copyText(${JSON.stringify(l.text)},this)">Copy</button></div><div class="template-text">${l.text}</div></div>`).join('');
+
+buildPrompt();
+</script>
+</body>
+</html>
